@@ -23,7 +23,7 @@ namespace PlayRoulette.API.Helpers
 
         public async Task<Guid> Create()
         {
-            var model = new Roulette() { Name = Guid.NewGuid(), StateRoulette = StateRoulette.Open };
+            Roulette model = new Roulette() { Name = Guid.NewGuid(), StateRoulette = StateRoulette.Open };
             _context.Roulettes.Add(model);
             await _context.SaveChangesAsync();
 
@@ -32,7 +32,7 @@ namespace PlayRoulette.API.Helpers
 
         public async Task<bool> Open(Guid name)
         {
-            var model = await _context.Roulettes.Where(x => x.Name == name && x.StateRoulette == StateRoulette.NA).FirstOrDefaultAsync();
+            Roulette model = await _context.Roulettes.Where(x => x.Name == name && x.StateRoulette == StateRoulette.NA).FirstOrDefaultAsync();
             if (model == null)
             {
                 return false;
@@ -40,12 +40,13 @@ namespace PlayRoulette.API.Helpers
             model.StateRoulette = StateRoulette.Open;
             _context.Entry(model).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+
             return true;
         }
 
         public async Task<List<HistoryRouletteWinners>> Close(Guid name)
         {
-            var model = await _context.Roulettes.Where(x => x.Name == name && x.StateRoulette == StateRoulette.Open).FirstOrDefaultAsync();
+            Roulette model = await _context.Roulettes.Where(x => x.Name == name && x.StateRoulette == StateRoulette.Open).FirstOrDefaultAsync();
             if (model == null)
             {
                 return null;
@@ -54,58 +55,52 @@ namespace PlayRoulette.API.Helpers
             model.WinNumber = new Random().Next(0, 36);
             _context.Entry(model).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            List<HistoryRouletteWinners> result = await (from a in _context.Roulettes
+                                                         join b in _context.HistoryRoulettes on a.Id equals b.RouletteId
+                                                         join c in _context.Users on b.UserId equals c.Id
+                                                         orderby c.UserName
+                                                         where a.Id == model.Id &&
+                                                             (
+                                                                 (b.TypeBet == TypeBet.Number && a.WinNumber == b.Number) ||
+                                                                 (b.TypeBet == TypeBet.Color && b.Color == (a.WinNumber % 2 == 0 ? Colors.Red : Colors.Black))
+                                                             )
+                                                         select new HistoryRouletteWinners()
+                                                         {
+                                                             UserName = c.UserName,
+                                                             RouletteName = a.Name,
+                                                             WinNumber = a.WinNumber,
 
-            var result = await (from a in _context.Roulettes
-                                join b in _context.HistoryRoulettes on a.Id equals b.RouletteId
-                                join c in _context.Users on b.UserId equals c.Id
-                                orderby c.UserName
-                                where a.Id == model.Id &&
-                                    (
-                                        (b.TypeBet == TypeBet.Number && a.WinNumber == b.Number) ||
-                                        (b.TypeBet == TypeBet.Color && b.Color == (a.WinNumber % 2 == 0 ? Colors.Red : Colors.Black))
-                                    )                                
-                                select new HistoryRouletteWinners()
-                                {
-                                    UserName = c.UserName,
-                                    RouletteName = a.Name,
-                                    WinNumber = a.WinNumber,
+                                                             TypeBet = b.TypeBet,
+                                                             Number = b.Number,
+                                                             Color = b.Color,
+                                                             BetValue = b.BetValue,
 
-                                    TypeBet = b.TypeBet,
-                                    Number = b.Number,
-                                    Color = b.Color,
-                                    BetValue = b.BetValue,
+                                                             TotalNumber = (b.TypeBet == TypeBet.Number && a.WinNumber == b.Number) ? 5 * (b.BetValue) : 0,
+                                                             TotalColor = (b.TypeBet == TypeBet.Color && b.Color == (a.WinNumber % 2 == 0 ? Colors.Red : Colors.Black)) ? Convert.ToDecimal(1.8) * (b.BetValue) : 0,
 
-                                    TotalNumber = (b.TypeBet == TypeBet.Number && a.WinNumber == b.Number) ? 5 * (b.BetValue) : 0,
-                                    TotalColor = (b.TypeBet == TypeBet.Color && b.Color == (a.WinNumber % 2 == 0 ? Colors.Red : Colors.Black)) ? Convert.ToDecimal(1.8) * (b.BetValue) : 0,
-
-                                }).ToListAsync();
+                                                         }).ToListAsync();
             return result;
         }
 
         public async Task<string> Bet(HistoryRoulette model)
         {
-            var user = await _userHelper.GetUser(id: model.UserId);
+            User user = await _userHelper.GetUser(id: model.UserId);
             if (user == null)
             {
-                return "El usuario no existe.";
+                return Constants.MessageBetUser;
             }
             if (model.BetValue > user.AccountBalance)
             {
-                return "El valor de la apuesta supera el saldo del usuario.";
+                return Constants.MessageBetValue;
             }
             if (await _context.Roulettes.Where(x => x.Id == model.RouletteId && x.StateRoulette != StateRoulette.Open).AnyAsync())
             {
-                return "La ruleta no se encuentra abierta.";
+                return Constants.MessageBetOpen;
             }
             _context.HistoryRoulettes.Add(model);
             await _context.SaveChangesAsync();
 
-            return "Apuesta Creada";
-        }
-
-        public async Task<List<Roulette>> GetAll()
-        {
-            return await _context.Roulettes.ToListAsync();
+            return Constants.MessageBetCreate;
         }
 
         public async Task<List<Roulette>> GetStatus()

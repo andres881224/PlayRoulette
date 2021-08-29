@@ -23,7 +23,7 @@ namespace PlayRoulette.API.Helpers
 
         public async Task<User> GetUser(string id = null, string userName = null)
         {
-            if (id!= null)
+            if (id != null)
             {
                 return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             }

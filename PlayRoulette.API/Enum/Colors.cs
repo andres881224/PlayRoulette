@@ -2,8 +2,8 @@
 {
     public enum Colors
     {
-        NA,
-        Black,
-        Red
+        NA = 0,
+        Black = 1,
+        Red = 2
     }
 }

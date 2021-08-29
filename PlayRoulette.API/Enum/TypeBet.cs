@@ -2,7 +2,7 @@
 {
     public enum TypeBet
     {
-        Number,
-        Color
+        Number = 0,
+        Color = 1
     }
 }

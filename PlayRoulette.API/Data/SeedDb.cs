@@ -75,7 +75,7 @@ namespace PlayRoulette.API.Data
                 await _context.SaveChangesAsync();
             }
         }
-        //BetValue = Convert.ToDecimal(new Random().Next(0, 10000))
+
         private async Task CheckHistoryRoulette()
         {
             Random r = new Random();

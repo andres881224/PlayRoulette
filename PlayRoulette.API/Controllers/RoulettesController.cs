@@ -33,8 +33,7 @@ namespace PlayRoulette.API.Controllers
         [Route("CreateRoulette")]
         public async Task<ActionResult<Guid>> CreateRoulette()
         {
-            _logger.LogInformation("Create Roulettes");
-
+            _logger.LogInformation(Constants.MessageLogCreateRoulette);
             return await _rouletteHelper.Create();
         }
 
@@ -43,13 +42,13 @@ namespace PlayRoulette.API.Controllers
         [Route("OpenRoulette")]
         public async Task<ActionResult<string>> OpenRoulette(RouletteRequest model)
         {
-            _logger.LogInformation("Open Roulettes");
+            _logger.LogInformation(Constants.MessageLogOpenRoulette);
             if (await _rouletteHelper.Open(model.Name))
             {
-                return "Exitosa";
+                return Constants.MessageSuccessful;
             }
 
-            return "Denegada";
+            return Constants.MessageDenied;
         }
 
         [HttpPut]
@@ -57,7 +56,7 @@ namespace PlayRoulette.API.Controllers
         [Route("CloseRoulette")]
         public async Task<ActionResult<IEnumerable<HistoryRouletteWinners>>> CloseRoulette(RouletteRequest model)
         {
-            _logger.LogInformation("CloseRoulette Roulettes");
+            _logger.LogInformation(Constants.MessageLogCloseRoulette);
             return await _rouletteHelper.Close(model.Name);
         }
 
@@ -67,7 +66,7 @@ namespace PlayRoulette.API.Controllers
         {
             HistoryRoulette bet = new HistoryRoulette()
             {
-                RouletteId = (await _rouletteHelper.GetAll()).Where(x => x.Name == model.RouletteId).FirstOrDefault().Id,
+                RouletteId = (await _rouletteHelper.GetStatus()).Where(x => x.Name == model.RouletteId).FirstOrDefault().Id,
                 TypeBet = TypeBet.Color,
                 UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
                 Number = 0,
@@ -78,13 +77,13 @@ namespace PlayRoulette.API.Controllers
             return await _rouletteHelper.Bet(bet);
         }
 
-        [HttpPost] 
+        [HttpPost]
         [Route("BetNumber")]
         public async Task<ActionResult<string>> BetNumber(HistoryRouletteNumber model)
         {
-            var bet = new HistoryRoulette()
+            HistoryRoulette bet = new HistoryRoulette()
             {
-                RouletteId = (await _rouletteHelper.GetAll()).Where(x => x.Name == model.RouletteId).FirstOrDefault().Id,
+                RouletteId = (await _rouletteHelper.GetStatus()).Where(x => x.Name == model.RouletteId).FirstOrDefault().Id,
                 TypeBet = TypeBet.Number,
                 UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
                 Number = model.Number,
@@ -100,9 +99,9 @@ namespace PlayRoulette.API.Controllers
         [Route("GetStatus")]
         public async Task<ActionResult<IEnumerable<Roulette>>> GetStatus()
         {
-            _logger.LogInformation("GetStatus Roulettes");
+            _logger.LogInformation(Constants.MessageLogGetStatus);
             return await _rouletteHelper.GetStatus();
-        } 
+        }
 
     }
 }

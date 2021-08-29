@@ -17,7 +17,7 @@ namespace PlayRoulette.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Roulette>().HasIndex(r => r.Name).IsUnique(); 
+            modelBuilder.Entity<Roulette>().HasIndex(r => r.Name).IsUnique();
         }
     }
 }

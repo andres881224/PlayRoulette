@@ -33,12 +33,10 @@ namespace PlayRoulette.API
                 cfg.Password.RequireNonAlphanumeric = false;
                 cfg.Password.RequireUppercase = false;
             }).AddEntityFrameworkStores<DataContext>();
-
             services.AddDbContext<DataContext>(cfg =>
             {
-                cfg.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                cfg.UseSqlServer(Configuration.GetConnectionString(Constants.ConnectionName));
             });
-
             services
               .AddAuthentication()
               .AddCookie()
@@ -46,12 +44,11 @@ namespace PlayRoulette.API
               {
                   cfg.TokenValidationParameters = new TokenValidationParameters
                   {
-                      ValidIssuer = Configuration["Tokens:Issuer"],
-                      ValidAudience = Configuration["Tokens:Audience"],
-                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"]))
+                      ValidIssuer = Configuration[Constants.TokensIssuer],
+                      ValidAudience = Configuration[Constants.TokensAudience],
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration[Constants.TokensKey]))
                   };
               });
-
             services.AddTransient<SeedDb>();
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IRouletteHelper, RouletteHelper>();
@@ -67,10 +64,6 @@ namespace PlayRoulette.API
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapControllers();
-            //});
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

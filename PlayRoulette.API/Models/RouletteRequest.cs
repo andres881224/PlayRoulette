@@ -5,7 +5,7 @@ namespace PlayRoulette.API.Models
 {
     public class RouletteRequest
     {
-        [Required(ErrorMessage = "The field {0} is required")]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         [Display(Name = "Ruleta")]
         public Guid Name { get; set; }
     }

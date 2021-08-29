@@ -1,5 +1,4 @@
 ﻿using PlayRoulette.API.Enum;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlayRoulette.API.Data.Entities

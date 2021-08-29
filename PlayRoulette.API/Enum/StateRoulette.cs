@@ -2,8 +2,8 @@
 {
     public enum StateRoulette
     {
-        NA,
-        Open,
-        Close
+        NA = 0,
+        Open = 1,
+        Close = 0
     }
 }

@@ -9,7 +9,7 @@ namespace PlayRoulette.API.Data.Entities
         public int Id { get; set; }
         public Guid Name { get; set; }
         public StateRoulette StateRoulette { get; set; }
-        public int WinNumber  { get; set; }
+        public int WinNumber { get; set; }
 
         [NotMapped]
         public string StateRouletteName => StateRoulette.ToString();

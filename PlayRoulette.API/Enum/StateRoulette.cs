@@ -4,6 +4,6 @@
     {
         NA = 0,
         Open = 1,
-        Close = 0
+        Close = 2
     }
 }
